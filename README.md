@@ -4,7 +4,11 @@ Blueprint that will control lights in a room, using one presence sensor and an
 illuminance sensor to decide when lights are to be turned on or off. Supports
 more conditions to turn lights on/off (see Features).
 
-# WARNING pre-release version. There is definitely trash in the BP, features will change without notice, no versioning is available until release.
+![Blueprint Automation Settings](images/chrome-capture-2025-1-31.gif)
+
+[!CAUTION]
+
+Pre-release version. There is definitely trash in the BP, features will change without notice, no versioning is available until release.
 Use at your own risk ;)
 
 ## Features
