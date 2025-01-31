@@ -1,3 +1,4 @@
 *
 !.gitignore
+!README.md
 !room_light_automation.yaml
