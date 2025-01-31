@@ -1,0 +1,349 @@
+mode: single
+blueprint:
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+  name: Occupancy Sensor Light Tutorial
+  description: Blueprint that will manage lights and devices
+  input:
+    room_entity:
+      name: Room
+      description: The room this automation controls.
+      selector:
+        area:
+    presence_sensor_room:
+      name: Room Presence Sensor
+      description: >
+        This will gover ALL entities in the room. If OFF, all devices will be
+        turned off after a certain configurable time.
+      selector:
+        entity:
+          filter:
+            - domain: binary_sensor
+              device_class: occupancy
+    illuminance_section:
+      name: Illuminance settings
+      collapsed: true
+      input:
+        illuminance_enabled:
+          name: Use illuminance sensor
+          default: true
+          selector:
+            boolean:
+        room_illuminance_sensor:
+          name: Light Sensor
+          description: >
+            The light sensor to be used for the room, to decide when the lights are
+            going to be turned on or off.
+          default: binary_sensor.NO_SENSOR
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: illuminance
+        input_room_illuminance_low:
+          name: Illuminance low
+          default: 10
+          selector:
+            number:
+              max: 1000
+              min: 0
+              unit_of_measurement: lx
+        input_room_illuminance_high:
+          name: Illuminance high
+          default: 100
+          selector:
+            number:
+              max: 1000
+              min: 0
+              unit_of_measurement: lx
+    manual_control_section:
+      name: Manual control settings
+      collapsed: true
+      input:
+        input_manual_control_enabled:
+          name: Manual control enabled
+          default: false
+          selector:
+            boolean:
+        input_manual_mode_switch:
+          name: Manual mode switch
+          default:
+          selector:
+            entity:
+              domain: switch
+    room_off_lights:
+      name: Room OFF lights
+      description: >
+        All lights that should be turned off when the room is unoccupied.
+      selector:
+        target:
+          entity:
+            - domain: light
+    room_on_lights:
+      name: Room ON lights
+      description: >
+        All lights that should be considered when checking if lights are on.
+      selector:
+        target:
+          entity:
+            - domain: light
+    room_on_scenes:
+      name: Scene lights ON
+      description: >
+        Which scenes to enable when turning on the lights and no other
+        conditions are met.
+      selector:
+        target:
+          entity:
+            - domain: scene
+    presence_time:
+      name: Presence Time
+      description: >
+        How long it takes for presence to trigger the lights.
+      default:
+        seconds: 0
+      selector:
+        duration:
+    presence_timeout:
+      name: Presence Timeout
+      description: >
+        How long should the absence last, to turn off all devices in the room.
+      default:
+        minutes: 2
+      selector:
+        duration:
+    light_on_transition_time:
+      name: "Light-ON transition time"
+      default: 3
+      description: "How long it takes for light-ON transitions to play out."
+      selector:
+        number:
+          max: 60
+          min: 0
+          unit_of_measurement: seconds
+    light_off_transition_time:
+      name: "Light-OFF transition time"
+      default: 30
+      description: "How long it takes for light-OFF transitions to play out."
+      selector:
+        number:
+          max: 60
+          min: 0
+          unit_of_measurement: seconds
+    manual_mode:
+      name: "Manual Mode"
+      collapsed: true
+      description: Settings for the manual override of lights.
+      input:
+        manual_mode_possible:
+          name: Manual mode possible
+          default: false
+          description: >
+            If true, enables manual mode override. You can then assign one or
+            more buttons/switches so that when you change light appearence this
+            will persist until the next prolonged absence.
+          selector:
+            boolean:
+        switches:
+          default:
+          selector:
+            target:
+              entity:
+                - domain: event
+                - domain: button
+                - domain: switch
+    area_1:
+      name: Custom Area 1
+      collapsed: true
+      description: >
+        You can use this to add extra behaviour to specific areas.
+      input:
+        presence_sensor_area_1:
+          name: Area 1 Presence Sensor
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: binary_sensor
+                  device_class: occupancy
+        lights_area_1:
+          name: Lights for Area 1
+          default:
+          selector:
+            target:
+              entity:
+                - domain: light
+
+triggers:
+  - trigger: state
+    id: trigger_room_presence
+    to: "on"
+    entity_id: !input presence_sensor_room
+  - trigger: state
+    id: trigger_room_absence
+    to: "off"
+    entity_id: !input presence_sensor_room
+  - trigger: numeric_state
+    enabled: !input illuminance_enabled
+    id: trigger_room_illuminance_low
+    entity_id: !input room_illuminance_sensor
+    below: !input input_room_illuminance_low
+  - trigger: numeric_state
+    enabled: !input illuminance_enabled
+    id: trigger_room_illuminance_high
+    entity_id: !input room_illuminance_sensor
+    above: !input input_room_illuminance_high
+  - trigger: event
+    id: trigger_automation_reload
+    event_type: call_service
+    event_data:
+      domain: automation
+      service: reload
+      service_data:
+        id: "{{ this.attributes.id }}"
+
+variables:
+  room_on_lights: !input room_on_lights
+  room_off_lights: !input room_off_lights
+  light_transitioning_onoff: "input_boolean.{{ this.entity_id }}_lights_transitioning_onoff"
+  manual_control_feature_enabled: !input input_manual_control_enabled
+  manual_control_switch:
+    !input input_manual_mode_switch
+    # {% if manual_control_feature_enabled %}
+    # "input_boolean.{{ this.entity_id }}_manually_controlled"
+
+actions:
+  - alias: "Update manual mode"
+    enabled: false
+    sequence:
+      - action: logbook.log
+        data:
+          name: "This"
+          entity_id: "{{ this.entity_id }}"
+          message: "{{ this }}"
+      - action: logbook.log
+        data:
+          name: "Context"
+          entity_id: "{{ this.entity_id }}"
+          message: "{{ this.context }}"
+      - action: logbook.log
+        data:
+          name: "Trigger"
+          entity_id: "{{ this.entity_id }}"
+          message: "{{ trigger }}"
+      - stop: Testing stop.
+  - alias: "Decide if lights need to be turned on, off or stay the same."
+    choose:
+      # ON FLOW
+      - conditions:
+          # One of the following triggers can activate this flow
+          # TODO: FEATURE, add the possibility to call this with events?
+          - or:
+              # triggered by someone entering the room the first time
+              - condition: trigger
+                id: trigger_room_presence
+              # or by the light going below the "low-brightness" threshold
+              - condition: trigger
+                enabled: !input illuminance_enabled
+                id: trigger_room_illuminance_low
+              - condition: trigger
+                id: trigger_automation_reload
+          # room needs to be occupied
+          - condition: state
+            entity_id: !input presence_sensor_room
+            state: "on"
+          # and dark
+          - condition: numeric_state
+            enabled: !input illuminance_enabled
+            entity_id: !input room_illuminance_sensor
+            below: !input input_room_illuminance_low
+          # if any of the lights in the group are already on, do nothing
+          - condition: template
+            enabled: false
+            value_template: "{{ is_state(light_transitioning_onoff, 'on') or (expand(room_on_lights.entity_id) | selectattr('state', '==', 'on') | list | count == 0) }}"
+          # if any light is in streaming mode, do nothing
+          - and:
+              # Hue Groups
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('attributes.is_hue_group', '==', True) | map(attribute='attributes.entity_id') | expand | selectattr('attributes.mode', '==', 'streaming') | list | count == 0 }}"
+              # Hue Lights
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('mode', '==', 'streaming') | list | count == 0 }}"
+              # Nanoleaf Blocks
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | map(attribute='attributes.effect') | select('==', '*ExtControl*') | list | count == 0 }}"
+        sequence:
+          - wait_for_trigger:
+              - trigger: state
+                entity_id: !input presence_sensor_room
+                to: "off"
+            timeout: !input presence_time
+          - if: "{{ wait.completed }}"
+            then:
+              - stop: "Person went again out of the room."
+            else:
+              # TODO: FEATURE-ENERGY-SAVING: Dim the lights to X% immediately when leaving a room.
+              # TODO: FEATURE-DUAL-TIMEOUT: save the state of the lights before turning them off (or dimming them), then when turning them on again
+              # TODO: maybe add a wait function that runs in parallel with the transitions
+              # decide if restoring the state, or starting the scene again, depending on how much time has passed.
+              - action: input_boolean.turn_on
+                enabled: false
+                target:
+                  entity_id: "{{ light_transitioning_onoff }}"
+              - action: scene.turn_on
+                target: !input room_on_scenes
+                data:
+                  transition: !input light_on_transition_time
+              - action: input_boolean.turn_off
+                enabled: false
+                target:
+                  entity_id: "{{ light_transitioning_onoff }}"
+      # OFF FLOW
+      - conditions:
+          # One of the following triggers can activate this flow
+          # TODO: FEATURE, add the possibility to call this with events?
+          - or:
+              # triggered by someone leaving the room last
+              - condition: trigger
+                id: trigger_room_absence
+              # or by the light going above the "high-brightness" threshold
+              - condition: trigger
+                enabled: !input illuminance_enabled
+                id: trigger_room_illuminance_high
+          # if all of the lights in the group are off, do nothing
+          - condition: template
+            value_template: "{{ is_state(light_transitioning_onoff, 'on') or (expand(room_off_lights.entity_id) | selectattr('state', '==', 'on') | list | count != 0) }}"
+          # if any light is in streaming mode, do nothing
+          - and:
+              # Hue Groups
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('attributes.is_hue_group', '==', True) | map(attribute='attributes.entity_id') | expand | selectattr('attributes.mode', '==', 'streaming') | list | count == 0 }}"
+              # Hue Lights
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('mode', '==', 'streaming') | list | count == 0 }}"
+              # Nanoleaf Blocks
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id) | map(attribute='attributes.effect') | select('==', '*ExtControl*') | list | count == 0 }}"
+        sequence:
+          - wait_for_trigger:
+              - trigger: state
+                entity_id: !input presence_sensor_room
+                to: "on"
+            timeout: !input presence_timeout
+          - if: "{{ wait.completed }}"
+            then:
+              - stop: "Person came back again into the room"
+            else:
+              - action: input_boolean.turn_on
+                enabled: false
+                target:
+                  entity_id: "{{ light_transitioning_onoff }}"
+              - action: light.turn_off
+                target: !input room_off_lights
+                data:
+                  transition: !input light_off_transition_time
+              - action: input_boolean.turn_off
+                enabled: false
+                target:
+                  entity_id: "{{ light_transitioning_onoff }}"
