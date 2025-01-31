@@ -6,9 +6,8 @@ more conditions to turn lights on/off (see Features).
 
 ![Blueprint Automation Settings](images/chrome-capture-2025-1-31.gif)
 
-[!CAUTION]
-
-Pre-release version. There is definitely trash in the BP, features will change without notice, no versioning is available until release.
+> [!CAUTION]
+> Pre-release version. There is definitely trash in the BP, features will change without notice, no versioning is available until release.
 Use at your own risk ;)
 
 ## Features
