@@ -49,3 +49,8 @@ devices have custom checks:
 
 - Nanoleaf Blocks (streaming mode detection)
 - Philips HUE lights (streaming mode detection)
+
+## When will this be released?
+
+I will release the Blueprint with proper versioning when I feel it doesn't get
+on my way for the type of automation I want to achieve.
