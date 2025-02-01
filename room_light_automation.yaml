@@ -197,8 +197,6 @@ variables:
   saved_scene_name: "{{ room_name }}_saved_light_state"
   manual_control_switch:
     !input input_manual_mode_switch
-    # {% if manual_control_feature_enabled %}
-    # "input_boolean.{{ this.entity_id }}_manually_controlled"
 
 actions:
   - alias: "Update manual mode"
@@ -225,7 +223,6 @@ actions:
       # ON FLOW
       - conditions:
           # One of the following triggers can activate this flow
-          # TODO: FEATURE, add the possibility to call this with events?
           - or:
               # triggered by someone entering the room the first time
               - condition: trigger
@@ -297,7 +294,6 @@ actions:
       # OFF FLOW
       - conditions:
           # One of the following triggers can activate this flow
-          # TODO: FEATURE, add the possibility to call this with events?
           - or:
               # triggered by someone leaving the room last
               - condition: trigger
@@ -328,7 +324,6 @@ actions:
             then:
               - action: scene.create
                 data:
-                  # TODO:! add dynamic ID
                   scene_id: "{{ saved_scene_name }}"
                   snapshot_entities: "{{ (expand('light.studio')
                     | selectattr('attributes.entity_id', 'defined')
