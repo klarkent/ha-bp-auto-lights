@@ -4,7 +4,7 @@ blueprint:
   homeassistant:
     min_version: 2024.6.0
   name: Klarkent's Auto Lights
-  description: Blueprint that will manage lights and devices
+  description: This blueprint automates your lights based on presence detection, illuminance levels, and configurable delays, ensuring seamless and efficient lighting control. It also includes scene-based lighting, manual mode, and protection for streaming setups.  
   input:
     room_entity:
       name: Room
