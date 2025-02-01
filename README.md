@@ -59,3 +59,10 @@ I can only provide support for devices that I personally own, as I need to test 
 ## 🚀 Release Plans  
 
 I will release this blueprint with proper versioning once it works seamlessly for my own automation needs. Until then, updates will be ongoing as I refine and expand its capabilities.
+
+## 🛠 Installation
+
+If you feel adventurous, you can import this Blueprint in your HA setup by
+clicking on button below:
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2Fklarkent%2Fha-bp-auto-lights%2Frefs%2Fheads%2Fmain%2Froom_light_automation.yaml)
