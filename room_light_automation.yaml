@@ -3,7 +3,7 @@ blueprint:
   domain: automation
   homeassistant:
     min_version: 2024.6.0
-  name: Occupancy Sensor Light Tutorial
+  name: Klarkent's Auto Lights
   description: Blueprint that will manage lights and devices
   input:
     room_entity:
