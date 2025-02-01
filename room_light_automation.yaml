@@ -64,10 +64,17 @@ blueprint:
         input_manual_control_enabled:
           name: Manual control enabled
           default: false
+          description: >
+            When manual mode is enabled, the light state gets saved before they
+            get turned off and restored when they are turned on again. This is
+            useful when for example you need a bright setting only for a day
+            and don't want to have to set it up every time you exit and enter
+            the room.
           selector:
             boolean:
         input_manual_mode_switch:
           name: Manual mode switch
+          description: The switch that decides when the manual mode is enabled.
           default:
           selector:
             entity:
@@ -131,28 +138,6 @@ blueprint:
           max: 60
           min: 0
           unit_of_measurement: seconds
-    manual_mode:
-      name: "Manual Mode"
-      collapsed: true
-      description: Settings for the manual override of lights.
-      input:
-        manual_mode_possible:
-          name: Manual mode possible
-          default: false
-          description: >
-            If true, enables manual mode override. You can then assign one or
-            more buttons/switches so that when you change light appearence this
-            will persist until the next prolonged absence.
-          selector:
-            boolean:
-        switches:
-          default:
-          selector:
-            target:
-              entity:
-                - domain: event
-                - domain: button
-                - domain: switch
     area_1:
       name: Custom Area 1
       collapsed: true
@@ -208,6 +193,8 @@ variables:
   room_off_lights: !input room_off_lights
   light_transitioning_onoff: "input_boolean.{{ this.entity_id }}_lights_transitioning_onoff"
   manual_control_feature_enabled: !input input_manual_control_enabled
+  room_name: !input room_entity
+  saved_scene_name: "{{ room_name }}_saved_light_state"
   manual_control_switch:
     !input input_manual_mode_switch
     # {% if manual_control_feature_enabled %}
@@ -260,7 +247,6 @@ actions:
             below: !input input_room_illuminance_low
           # if any of the lights in the group are already on, do nothing
           - condition: template
-            enabled: false
             value_template: "{{ is_state(light_transitioning_onoff, 'on') or (expand(room_on_lights.entity_id) | selectattr('state', '==', 'on') | list | count == 0) }}"
           # if any light is in streaming mode, do nothing
           - and:
@@ -291,10 +277,19 @@ actions:
                 enabled: false
                 target:
                   entity_id: "{{ light_transitioning_onoff }}"
-              - action: scene.turn_on
-                target: !input room_on_scenes
-                data:
-                  transition: !input light_on_transition_time
+              - if:
+                  condition: state
+                  entity_id: !input input_manual_mode_switch
+                  state: "on"
+                then:
+                  - action: scene.turn_on
+                    target:
+                      entity_id: "scene.{{ saved_scene_name }}"
+                else:
+                  - action: scene.turn_on
+                    target: !input room_on_scenes
+                    data:
+                      transition: !input light_on_transition_time
               - action: input_boolean.turn_off
                 enabled: false
                 target:
@@ -326,6 +321,26 @@ actions:
               - condition: template
                 value_template: "{{ expand(room_on_lights.entity_id) | map(attribute='attributes.effect') | select('==', '*ExtControl*') | list | count == 0 }}"
         sequence:
+          - if:
+              condition: state
+              entity_id: !input input_manual_mode_switch
+              state: "on"
+            then:
+              - action: scene.create
+                data:
+                  # TODO:! add dynamic ID
+                  scene_id: "{{ saved_scene_name }}"
+                  snapshot_entities: "{{ (expand('light.studio')
+                    | selectattr('attributes.entity_id', 'defined')
+                    | map(attribute='attributes.entity_id')
+                    | expand
+                    | map(attribute='entity_id')
+                    | list
+                    ) + (expand('light.blocks_1425')
+                    | selectattr('attributes.entity_id', 'undefined')
+                    | map(attribute='entity_id')
+                    | list) }}"
+
           - wait_for_trigger:
               - trigger: state
                 entity_id: !input presence_sensor_room
