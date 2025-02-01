@@ -16,33 +16,29 @@ I created this BP because I was unhappy with Node-Red and with the default
 automation flow in HA. I wanted something that can be configured and that then
 "just works". Here's what I implemented:
 
-- 🔆 **Illuminance condition**: turn on/off the lights according to the 
-    configured values.
-- 🧑‍🤝‍🧑**Presence detection**: turn on/off the lights when the room becomes occupied
-    or unoccupied.
-- ⌛ **Delay on/off**: turn on/off lights only when the presence/absence lasts for
-    a configurable amount of time.
-- **Scene selection**: Rather than configuring lights through the Blueprint
-    directly, uses **HA Scenes**. Using scripts is therefore not supported.
-- **Prevent streaming mode interruptions**: Are you a fan of games with synced
-    lights? I've got you covered. The automation won't trigger when any of the
-    lights are in streaming mode. 
-- **FUTURE** *Manual mode*: allow setting a manual mode, so that lights still go
-    on/off but instead of resetting them, the previous values are kept. Example:
-    you set bright lights in a room because you are studying. Once you go out of the
-    room and come back, the lights go on at the same color and brightness as
-    before, instead of the "default" scene.
-- **FUTURE** *Multiple-area support*: Supports commanding sub-areas inside the
-    same room (mostly for Aqara FP2) so that you can add additional behaviour to
-    lights. Example: set the brightness of a wardrobe light to 100% when someone
-    is there for X seconds.
-- **FUTURE** *Energy saver*: dims the lights to a certain percentace immediately
-    after the last person leaves the room.
-- **FUTURE** *Auto-manual-mode*: This depends on whether it will be possible to
-    detect a light change *not* triggered by the user in any way. If this is
-    possible, I would make it so that any adjustment to the lights is kept until
-    the room is left for a prolonged (configurable) amount of time. May conflict
-    with the streaming-mode.
+- 🔆 **Illuminance Control**: Automatically turns lights on or off based on
+  configured brightness thresholds.  
+- 🧑‍🤝‍🧑 **Presence Detection**: Activates or deactivates lights when the room
+  becomes occupied or vacant.  
+- ⌛ **Adjustable Delay**: Ensures lights change state only after presence or
+  absence has been detected for a set duration.  
+- 🎭 **Scene-Based Control**: Uses **Home Assistant Scenes** instead of direct
+  light configuration. Script-based control is not supported.  
+- 🎮 **Streaming Mode Protection**: Prevents automation from interrupting lights
+  when they are in streaming mode—perfect for synced gaming or ambient lighting
+  setups.  
+- ✋ **Manual Mode**: Retains previous brightness and color settings instead of
+  resetting to a default scene. Example: If you set bright lights for studying,
+  they’ll stay that way when you leave and return.  
+- 🔜 **Future: Multi-Area Support**: Enables finer control within a single room
+  (e.g., with Aqara FP2), allowing custom behaviors like increasing wardrobe
+  light brightness when someone is nearby for a set time.  
+- 🔜 **Future: Energy Saver**: Automatically dims lights when the last person
+  leaves the room.  
+- 🔜 **Future: Auto-Manual Mode**: If detecting *non-user-triggered* light
+  changes becomes possible, adjustments will persist until the room is vacant
+  for a configurable duration. This may conflict with streaming mode.  
+
 
 ## Use-cases
 
