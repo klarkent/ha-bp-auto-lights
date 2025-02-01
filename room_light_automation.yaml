@@ -325,13 +325,13 @@ actions:
               - action: scene.create
                 data:
                   scene_id: "{{ saved_scene_name }}"
-                  snapshot_entities: "{{ (expand('light.studio')
+                  snapshot_entities: "{{ (expand(room_on_lights)
                     | selectattr('attributes.entity_id', 'defined')
                     | map(attribute='attributes.entity_id')
                     | expand
                     | map(attribute='entity_id')
                     | list
-                    ) + (expand('light.blocks_1425')
+                    ) + (expand(room_on_lights)
                     | selectattr('attributes.entity_id', 'undefined')
                     | map(attribute='entity_id')
                     | list) }}"
