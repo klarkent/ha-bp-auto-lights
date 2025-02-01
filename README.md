@@ -39,36 +39,23 @@ automation flow in HA. I wanted something that can be configured and that then
   changes becomes possible, adjustments will persist until the room is vacant
   for a configurable duration. This may conflict with streaming mode.  
 
+## 📌 Use Cases  
 
-## Use-cases
+Currently, this blueprint covers basic automation needs. It does not yet account for guest presence or sleeping detection, but these features are planned for future updates as I implement them in my own home.  
 
-So far, this Blueprint has very basic use-cases. It does not take into account
-the presence of guests, or of someone sleeping. Those are going to be there in
-the future, as I get the time to implement those functions for my own home.
+### ✅ Best Use Cases So Far:  
+- **Rooms where no one sleeps** – Ideal for living rooms, hallways, or workspaces.  
+- **Rooms that don’t require multi-zone settings** – The area-based feature is not yet implemented.  
+- **Rooms with multiple presence sensors** – While support for multiple sensors isn't difficult to add, I haven’t needed this functionality yet.  
+- **Rooms with simple scene activation logic** – This blueprint does not yet handle scene selection based on time or other conditions, but I may introduce it in the future once I gain more expertise in Home Assistant.  
 
-The best use-cases are so far:
+## 🛠️ Supported Devices with Special Features  
 
-- Rooms where no one sleeps
-- Rooms that don't need multi-zone settings (as the Area feature is not yet
-    implemented)
-- Rooms that need more than one presence-sensor (it probably would not be hard
-    to introduce, but it is not a use-case I need)
-- Rooms with no special logic needed as of which scene to activate based on time
-    or condition. (this also may be introduced at some point in time, but at
-    the moment I feel like my knowledge of HA is not enough to implement this
-    in a usable way in a Blueprint)
+I can only provide support for devices that I personally own, as I need to test changes myself. In theory, any device with a Home Assistant entity should work, but some checks are device-specific. This blueprint currently includes custom checks for:  
 
-## Supported Devices with "special" features
+- **Nanoleaf Blocks** – Streaming mode detection  
+- **Philips Hue Lights** – Streaming mode detection  
 
-I can provide support only for devices that I own, because I need to be able to
-test changes, as I am a user of the BP myself. In theory, any device that has
-a HA entity should work, but some checks are device-specific. In this BP those
-devices have custom checks:
+## 🚀 Release Plans  
 
-- Nanoleaf Blocks (streaming mode detection)
-- Philips HUE lights (streaming mode detection)
-
-## When will this be released?
-
-I will release the Blueprint with proper versioning when I feel it doesn't get
-on my way for the type of automation I want to achieve.
+I will release this blueprint with proper versioning once it works seamlessly for my own automation needs. Until then, updates will be ongoing as I refine and expand its capabilities.
