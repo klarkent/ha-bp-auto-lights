@@ -32,6 +32,10 @@ automation flow in HA. I wanted something that can be configured and that then
     you set bright lights in a room because you are studying. Once you go out of the
     room and come back, the lights go on at the same color and brightness as
     before, instead of the "default" scene.
+- **FUTURE** *Multiple-area support*: Supports commanding sub-areas inside the
+    same room (mostly for Aqara FP2) so that you can add additional behaviour to
+    lights. Example: set the brightness of a wardrobe light to 100% when someone
+    is there for X seconds.
 - **FUTURE** *Energy saver*: dims the lights to a certain percentace immediately
     after the last person leaves the room.
 - **FUTURE** *Auto-manual-mode*: This depends on whether it will be possible to
@@ -39,6 +43,24 @@ automation flow in HA. I wanted something that can be configured and that then
     possible, I would make it so that any adjustment to the lights is kept until
     the room is left for a prolonged (configurable) amount of time. May conflict
     with the streaming-mode.
+
+## Use-cases
+
+So far, this Blueprint has very basic use-cases. It does not take into account
+the presence of guests, or of someone sleeping. Those are going to be there in
+the future, as I get the time to implement those functions for my own home.
+
+The best use-cases are so far:
+
+- Rooms where no one sleeps
+- Rooms that don't need multi-zone settings (as the Area feature is not yet
+    implemented)
+- Rooms that need more than one presence-sensor (it probably would not be hard
+    to introduce, but it is not a use-case I need)
+- Rooms with no special logic needed as of which scene to activate based on time
+    or condition. (this also may be introduced at some point in time, but at
+    the moment I feel like my knowledge of HA is not enough to implement this
+    in a usable way in a Blueprint)
 
 ## Supported Devices with "special" features
 
