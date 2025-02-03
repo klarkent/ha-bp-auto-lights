@@ -78,7 +78,8 @@ blueprint:
           default:
           selector:
             entity:
-              domain: switch
+              filter:
+                domain: switch
     room_off_lights:
       name: Room OFF lights
       description: >
