@@ -196,8 +196,7 @@ variables:
   manual_control_feature_enabled: !input input_manual_control_enabled
   room_name: !input room_entity
   saved_scene_name: "{{ room_name }}_saved_light_state"
-  manual_control_switch:
-    !input input_manual_mode_switch
+  manual_control_switch: !input input_manual_mode_switch
 
 actions:
   - alias: "Update manual mode"
@@ -244,19 +243,39 @@ actions:
             entity_id: !input room_illuminance_sensor
             below: !input input_room_illuminance_low
           # if any of the lights in the group are already on, do nothing
-          - condition: template
-            value_template: "{{ is_state(light_transitioning_onoff, 'on') or (expand(room_on_lights.entity_id) | selectattr('state', '==', 'on') | list | count == 0) }}"
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ is_state(light_transitioning_onoff, 'on') }}"
+              - condition: template
+                value_template: "{{ expand(room_on_lights.entity_id)
+                  | selectattr('state', '==', 'on')
+                  | list
+                  | count == 0 }}"
           # if any light is in streaming mode, do nothing
           - and:
               # Hue Groups
               - condition: template
-                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('attributes.is_hue_group', '==', True) | map(attribute='attributes.entity_id') | expand | selectattr('attributes.mode', '==', 'streaming') | list | count == 0 }}"
+                value_template: "{{ expand(room_on_lights.entity_id)
+                  | selectattr('attributes.is_hue_group', '==', True)
+                  | map(attribute='attributes.entity_id')
+                  | expand
+                  | selectattr('attributes.mode', '==', 'streaming')
+                  | list
+                  | count == 0 }}"
               # Hue Lights
               - condition: template
-                value_template: "{{ expand(room_on_lights.entity_id) | selectattr('mode', '==', 'streaming') | list | count == 0 }}"
+                value_template: "{{ expand(room_on_lights.entity_id)
+                  | selectattr('mode', '==', 'streaming')
+                  | list
+                  | count == 0 }}"
               # Nanoleaf Blocks
               - condition: template
-                value_template: "{{ expand(room_on_lights.entity_id) | map(attribute='attributes.effect') | select('==', '*ExtControl*') | list | count == 0 }}"
+                value_template: "{{ expand(room_on_lights.entity_id)
+                  | map(attribute='attributes.effect')
+                  | select('==', '*ExtControl*')
+                  | list
+                  | count == 0 }}"
         sequence:
           - wait_for_trigger:
               - trigger: state
@@ -304,8 +323,14 @@ actions:
                 enabled: !input illuminance_enabled
                 id: trigger_room_illuminance_high
           # if all of the lights in the group are off, do nothing
-          - condition: template
-            value_template: "{{ is_state(light_transitioning_onoff, 'on') or (expand(room_off_lights.entity_id) | selectattr('state', '==', 'on') | list | count != 0) }}"
+          - or:
+              - condition: template
+                value_template: "{{ is_state(light_transitioning_onoff, 'on') }}"
+              - condition: template
+                value_template: "{{expand(room_off_lights.entity_id)
+                  | selectattr('state', '==', 'on')
+                  | list
+                  | count != 0 }}"
           # if any light is in streaming mode, do nothing
           - and:
               # Hue Groups
