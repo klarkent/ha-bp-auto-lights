@@ -192,7 +192,7 @@ triggers:
 variables:
   room_on_lights: !input room_on_lights
   room_off_lights: !input room_off_lights
-  light_transitioning_onoff: "input_boolean.{{ this.entity_id }}_lights_transitioning_onoff"
+  light_transitioning_onoff: "input_boolean.{{ this.entity_id | slugify(separator='_') }}_lights_transitioning_onoff"
   manual_control_feature_enabled: !input input_manual_control_enabled
   room_name: !input room_entity
   saved_scene_name: "{{ room_name }}_saved_light_state"
